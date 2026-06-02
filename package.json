@@ -13,7 +13,17 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
-  "keywords": ["security", "scanner", "ai", "vulnerability", "sast"],
+  "keywords": [
+    "security",
+    "scanner",
+    "ai",
+    "vulnerability",
+    "sast"
+  ],
   "author": "VulnShield",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.16"
+  }
 }
