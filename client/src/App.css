@@ -1,0 +1,13 @@
+/* Add animation for spinning lucide-react icons */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Flex utilities used in components */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.gap-4 { gap: 16px; }

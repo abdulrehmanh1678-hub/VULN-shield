@@ -1,0 +1,19 @@
+{
+  "name": "vulnshield",
+  "version": "1.0.0",
+  "description": "AI-Powered Agentic Security Scanner - Portfolio Project",
+  "scripts": {
+    "server": "cd server && node server.js",
+    "client": "cd client && npm run dev",
+    "dev": "start \"VulnShield Server\" cmd /k \"cd server && node server.js\" && start \"VulnShield Client\" cmd /k \"cd client && npm run dev\"",
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && node server.js",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "keywords": ["security", "scanner", "ai", "vulnerability", "sast"],
+  "author": "VulnShield",
+  "license": "MIT"
+}
