@@ -6,9 +6,10 @@
   --bg-tertiary: #1b2030;
   --bg-glass: rgba(19, 23, 34, 0.7);
   --bg-glass-hover: rgba(27, 32, 48, 0.85);
+  --bg-code-deep: #0e111a;
   --border-color: rgba(255, 255, 255, 0.08);
   --border-color-active: rgba(99, 102, 241, 0.4);
-  
+
   --text-primary: #f3f4f6;
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
@@ -234,4 +235,282 @@ body {
   color: var(--text-muted);
   cursor: not-allowed;
   box-shadow: none;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Filter Chips */
+.filter-chip {
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* Copy Button */
+.copy-btn {
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text-secondary);
+}
+
+.copy-btn.copied {
+  color: var(--color-info);
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+/* Risk Score Gauge */
+.risk-gauge-track {
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.risk-gauge-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scan stat pill */
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* Responsive main grid */
+.main-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+}
+
+/* ───────────────────────── Light Theme ───────────────────────── */
+[data-theme="light"] {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e2e8f0;
+  --bg-glass: rgba(255, 255, 255, 0.75);
+  --bg-glass-hover: rgba(255, 255, 255, 0.95);
+  --bg-code-deep: #f8fafc;
+  --border-color: rgba(15, 23, 42, 0.1);
+  --border-color-active: rgba(99, 102, 241, 0.45);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.9) 100%);
+  --shadow-md: 0 8px 24px 0 rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 40px 0 rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] body { background-color: var(--bg-primary); }
+[data-theme="light"] .glow-orb { opacity: 0.5; }
+
+/* ───────────────────────── Toasts ───────────────────────── */
+.toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 340px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+  color: var(--text-primary);
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.toast-icon { display: flex; flex-shrink: 0; }
+.toast-msg { flex: 1; line-height: 1.4; }
+.toast-success { border-left: 3px solid var(--color-info); }
+.toast-success .toast-icon { color: var(--color-info); }
+.toast-error { border-left: 3px solid var(--color-critical); }
+.toast-error .toast-icon { color: var(--color-critical); }
+.toast-info { border-left: 3px solid var(--accent-primary); }
+.toast-info .toast-icon { color: var(--accent-primary); }
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  flex-shrink: 0;
+}
+.toast-close:hover { color: var(--text-primary); }
+
+/* ───────────────────────── Search & Select ───────────────────────── */
+.search-box {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+.search-box input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+}
+.search-box input::placeholder { color: var(--text-muted); }
+
+.select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+.select-wrap select {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.select-wrap select option { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* ───────────────────────── Tag Pills & Ref Link ───────────────────────── */
+.tag-pill {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-primary);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  white-space: nowrap;
+}
+
+.ref-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-weight: 500;
+  width: fit-content;
+}
+.ref-link:hover { text-decoration: underline; }
+
+/* ───────────────────────── Severity Distribution Bar ───────────────────────── */
+.sev-distribution {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  gap: 1px;
+}
+.sev-distribution > div {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 3px;
+}
+
+/* ───────────────────────── Feature Cards (hero) ───────────────────────── */
+.feature-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+.feature-card:hover {
+  border-color: var(--border-color-active);
+  transform: translateY(-2px);
 }

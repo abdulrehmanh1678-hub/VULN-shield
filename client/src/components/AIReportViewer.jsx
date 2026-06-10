@@ -28,13 +28,18 @@ export default function AIReportViewer({ report, aiGenerated }) {
       </div>
 
       {/* Risk Score Card */}
-      <div className="glass-panel" style={{ padding: '20px', background: `linear-gradient(135deg, ${riskColor}15, transparent)`, borderLeft: `4px solid ${riskColor}`, display: 'flex', gap: '20px', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center', minWidth: '80px' }}>
-          <div style={{ fontSize: '42px', fontWeight: 800, color: riskColor, lineHeight: 1 }}>{report.riskScore ?? 'N/A'}</div>
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '4px' }}>RISK SCORE</div>
+      <div className="glass-panel animate-fade-up" style={{ padding: '20px', background: `linear-gradient(135deg, ${riskColor}12, transparent)`, borderLeft: `4px solid ${riskColor}`, display: 'flex', gap: '20px', alignItems: 'center' }}>
+        <div style={{ textAlign: 'center', minWidth: '80px', flexShrink: 0 }}>
+          <div style={{ fontSize: '46px', fontWeight: 800, color: riskColor, lineHeight: 1 }}>{report.riskScore ?? 'N/A'}</div>
+          <div style={{ fontSize: '9px', color: 'var(--text-secondary)', marginTop: '4px', letterSpacing: '0.5px' }}>RISK SCORE</div>
+          {report.riskScore != null && (
+            <div className="risk-gauge-track" style={{ marginTop: '8px' }}>
+              <div className="risk-gauge-fill" style={{ width: `${report.riskScore}%`, background: riskColor }} />
+            </div>
+          )}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '18px', fontWeight: 700, color: riskColor }}>{report.riskLabel}</div>
+          <div style={{ fontSize: '18px', fontWeight: 700, color: riskColor, marginBottom: '2px' }}>{report.riskLabel}</div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '10px' }}>{report.totalFindings} vulnerabilities identified</div>
           <p style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.6 }}>{report.executiveSummary}</p>
         </div>
@@ -42,7 +47,7 @@ export default function AIReportViewer({ report, aiGenerated }) {
 
       {/* Prioritized Actions */}
       {report.prioritizedActions?.length > 0 && (
-        <div className="glass-panel" style={{ padding: '16px' }}>
+        <div className="glass-panel animate-fade-up" style={{ padding: '16px', animationDelay: '80ms' }}>
           <h4 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-high)' }}>
             <Target size={15} /> Prioritized Remediation Actions
           </h4>
@@ -59,7 +64,7 @@ export default function AIReportViewer({ report, aiGenerated }) {
 
       {/* Architecture Recommendations */}
       {report.secureArchitectureRecommendations?.length > 0 && (
-        <div className="glass-panel" style={{ padding: '16px' }}>
+        <div className="glass-panel animate-fade-up" style={{ padding: '16px', animationDelay: '160ms' }}>
           <h4 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-info)' }}>
             <Lock size={15} /> Secure Architecture Recommendations
           </h4>

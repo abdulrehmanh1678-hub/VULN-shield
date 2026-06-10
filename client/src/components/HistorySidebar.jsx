@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Clock, Trash2, X, Shield, ChevronRight, AlertTriangle } from 'lucide-react';
-import { apiUrl } from '../api';
+import { getHistory, getScan, deleteScan as removeScan } from '../lib/history';
 
 const SEVERITY_COLORS = {
   Critical: 'var(--color-critical)', High: 'var(--color-high)',
@@ -14,26 +14,24 @@ export default function HistorySidebar({ onSelect, onClose, refresh }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(apiUrl('/api/scan/history'))
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) setScans(data.scans);
-        else setError('Could not load history.');
-      })
-      .catch(() => setError('Server unavailable.'))
-      .finally(() => setLoading(false));
+    try {
+      setScans(getHistory());
+    } catch {
+      setError('Could not load history.');
+    } finally {
+      setLoading(false);
+    }
   }, [refresh]);
 
-  const deleteScan = async (e, id) => {
+  const deleteScan = (e, id) => {
     e.stopPropagation();
-    await fetch(apiUrl(`/api/scan/${id}`), { method: 'DELETE' });
+    removeScan(id);
     setScans(prev => prev.filter(s => s.id !== id));
   };
 
-  const handleSelect = async (scan) => {
-    const res = await fetch(apiUrl(`/api/scan/${scan.id}`));
-    const data = await res.json();
-    if (data.success) onSelect(data.scan);
+  const handleSelect = (scan) => {
+    const full = getScan(scan.id);
+    if (full) onSelect(full);
   };
 
   return (

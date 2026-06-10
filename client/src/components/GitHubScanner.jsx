@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GitBranch, AlertCircle, Loader2, FileCode, Terminal } from 'lucide-react';
-import { apiUrl } from '../api';
+import { scanGitHubRepo } from '../lib/github';
 
 const SAMPLE_REPOS = [
   { label: 'DVWA (PHP vulnerable app)', url: 'https://github.com/digininja/DVWA' },
@@ -24,22 +24,19 @@ export default function GitHubScanner({ onResults, isScanning, setIsScanning }) 
     setError('');
 
     try {
-      const res = await fetch(apiUrl('/api/github'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repoUrl })
+      const logs = [];
+      const data = await scanGitHubRepo(repoUrl, (log) => {
+        logs.push(log);
+        setProgress([...logs]);
       });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         setError(data.error || 'GitHub scan failed');
       } else {
-        setProgress(data.progressLogs || []);
-        onResults(data);
+        await onResults(data);
       }
     } catch (err) {
-      setError('Could not reach the server. Make sure it is running on port 5000.');
+      setError('GitHub scan failed: ' + (err.message || 'unknown error'));
     } finally {
       setIsScanning(false);
     }
