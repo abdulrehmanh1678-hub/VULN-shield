@@ -70,6 +70,13 @@ export default function ResultsViewer({ results }) {
     return acc;
   }, {});
 
+  // Distribution across OWASP Top 10 (2021) categories, for the coverage chips.
+  const owaspCounts = findings.reduce((acc, f) => {
+    const owasp = getVulnMeta(f).owasp;
+    acc[owasp] = (acc[owasp] || 0) + 1;
+    return acc;
+  }, {});
+
   const toggleExpand = (id) => {
     setExpandedIds(prev => {
       const next = new Set(prev);
@@ -164,6 +171,20 @@ export default function ResultsViewer({ results }) {
                   </span>
                 );
               })}
+            </div>
+
+            {/* OWASP Top 10 coverage — categories present in this scan */}
+            <div style={{ marginTop: '14px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>OWASP Top 10 coverage</div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {Object.entries(owaspCounts)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([owasp, count]) => (
+                    <span key={owasp} className="tag-pill" title={`${count} finding${count > 1 ? 's' : ''}`}>
+                      {owasp} · {count}
+                    </span>
+                  ))}
+              </div>
             </div>
           </>
         )}

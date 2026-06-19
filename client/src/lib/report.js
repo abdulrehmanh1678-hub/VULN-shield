@@ -6,6 +6,8 @@
  */
 
 import { apiUrl } from '../api';
+import { getAiConfig } from './aiConfig';
+import { SYSTEM_PROMPT, buildPrompt, parseReportJson } from './aiPrompt';
 
 const REFERENCES = {
   'SEC-SQLI': ['OWASP A03:2021 – Injection', 'CWE-89: SQL Injection', 'https://owasp.org/www-community/attacks/SQL_Injection'],
@@ -89,44 +91,118 @@ export function buildStaticReport(scanData) {
   };
 }
 
+/** Payload shared by every AI provider. */
+function payload(scanData) {
+  return { recon: scanData.recon, findings: scanData.findings, summary: scanData.summary };
+}
+
 /**
- * Generate a report for scan results. Attempts AI enrichment via the serverless
- * function, transparently falling back to the static report on any failure.
- * @returns {Promise<{ report, aiGenerated }>}
+ * Enrich via the Vercel serverless function (OpenAI). Returns the report or null.
  */
-export async function generateReport(scanData) {
+async function generateServerlessReport(scanData) {
   try {
     const res = await fetch(apiUrl('/api/report'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        recon: scanData.recon,
-        findings: scanData.findings,
-        summary: scanData.summary
-      })
+      body: JSON.stringify(payload(scanData))
     });
-
     if (res.ok) {
       const data = await res.json();
-      if (data?.aiGenerated && data.report) {
-        return { report: data.report, aiGenerated: true };
-      }
+      if (data?.aiGenerated && data.report) return data.report;
     }
   } catch {
-    // network error / function unavailable — fall through to static report
+    // network error / function unavailable
   }
-
-  return buildStaticReport(scanData);
+  return null;
 }
 
-/** Quick probe: is AI enrichment available on this deployment? */
-export async function checkAiEnabled() {
+/**
+ * Enrich via a local Ollama model (fully offline). Calls Ollama's native chat
+ * endpoint with JSON-formatted output. Returns the report or null on any failure.
+ */
+async function generateOllamaReport(scanData, cfg = getAiConfig()) {
   try {
-    const res = await fetch(apiUrl('/api/report'), { method: 'GET' });
-    if (!res.ok) return false;
+    const res = await fetch(`${cfg.ollamaUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: cfg.ollamaModel,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: buildPrompt(payload(scanData)) }
+        ],
+        stream: false,
+        format: 'json',
+        options: { temperature: 0.2 }
+      })
+    });
+    if (!res.ok) return null;
     const data = await res.json();
-    return !!data.aiEnabled;
+    const report = parseReportJson(data?.message?.content);
+    return report || null;
   } catch {
-    return false;
+    // Ollama not running / unreachable / CORS blocked
+    return null;
   }
+}
+
+/**
+ * Generate a report for scan results using the configured provider, with an
+ * automatic fall-through to the static (no-LLM) report on any failure.
+ * @returns {Promise<{ report, aiGenerated, provider }>}
+ */
+export async function generateReport(scanData, cfg = getAiConfig()) {
+  const provider = cfg.provider || 'auto';
+
+  if (provider === 'ollama') {
+    const report = await generateOllamaReport(scanData, cfg);
+    if (report) return { report, aiGenerated: true, provider: 'ollama' };
+  } else if (provider === 'serverless') {
+    const report = await generateServerlessReport(scanData);
+    if (report) return { report, aiGenerated: true, provider: 'serverless' };
+  } else if (provider === 'auto') {
+    // Prefer the hosted function when a key is configured, else try local Ollama.
+    const remote = await generateServerlessReport(scanData);
+    if (remote) return { report: remote, aiGenerated: true, provider: 'serverless' };
+    const local = await generateOllamaReport(scanData, cfg);
+    if (local) return { report: local, aiGenerated: true, provider: 'ollama' };
+  }
+  // provider === 'static' or every attempt failed
+  return { ...buildStaticReport(scanData), provider: 'static' };
+}
+
+/**
+ * Quick probe: is AI enrichment available? Checks the provider the user picked
+ * (serverless key present, or a reachable Ollama), so the UI badge is accurate.
+ * @returns {Promise<{ enabled: boolean, provider: string }>}
+ */
+export async function checkAiEnabled(cfg = getAiConfig()) {
+  const provider = cfg.provider || 'auto';
+
+  const probeServerless = async () => {
+    try {
+      const res = await fetch(apiUrl('/api/report'), { method: 'GET' });
+      if (!res.ok) return false;
+      const data = await res.json();
+      return !!data.aiEnabled;
+    } catch {
+      return false;
+    }
+  };
+  const probeOllama = async () => {
+    try {
+      const res = await fetch(`${cfg.ollamaUrl}/api/tags`, { method: 'GET' });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  if (provider === 'static') return { enabled: false, provider: 'static' };
+  if (provider === 'ollama') return { enabled: await probeOllama(), provider: 'ollama' };
+  if (provider === 'serverless') return { enabled: await probeServerless(), provider: 'serverless' };
+  // auto
+  if (await probeServerless()) return { enabled: true, provider: 'serverless' };
+  if (await probeOllama()) return { enabled: true, provider: 'ollama' };
+  return { enabled: false, provider: 'auto' };
 }

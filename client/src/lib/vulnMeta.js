@@ -17,6 +17,11 @@ const RULE_META = {
   'SEC-JWT-UNSAFE':     { owasp: 'A07:2021 Auth Failures',             cwe: 'CWE-347' },
   'SEC-PATH-TRAVERSAL': { owasp: 'A01:2021 Broken Access Control',     cwe: 'CWE-22'  },
   'SEC-FILE-UPLOAD':    { owasp: 'A04:2021 Insecure Design',           cwe: 'CWE-434' },
+  'SEC-SSRF':           { owasp: 'A10:2021 SSRF',                      cwe: 'CWE-918' },
+  'SEC-DESERIAL':       { owasp: 'A08:2021 Software & Data Integrity', cwe: 'CWE-502' },
+  'SEC-CORS-WILD':      { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-942' },
+  'SEC-OPEN-REDIRECT':  { owasp: 'A01:2021 Broken Access Control',     cwe: 'CWE-601' },
+  'SEC-NOSQL':          { owasp: 'A03:2021 Injection',                 cwe: 'CWE-943' },
 };
 
 const CATEGORY_FALLBACK = {
@@ -25,6 +30,11 @@ const CATEGORY_FALLBACK = {
   'Sensitive Data Exposure':         { owasp: 'A02:2021 Cryptographic Failures', cwe: 'CWE-200' },
   'Weak Cryptography':               { owasp: 'A02:2021 Cryptographic Failures', cwe: 'CWE-327' },
   'Injection / Remote Code Execution': { owasp: 'A03:2021 Injection',            cwe: 'CWE-77' },
+  'Injection':                        { owasp: 'A03:2021 Injection',              cwe: 'CWE-943' },
+  'Server-Side Request Forgery':      { owasp: 'A10:2021 SSRF',                   cwe: 'CWE-918' },
+  'Insecure Deserialization':         { owasp: 'A08:2021 Software & Data Integrity', cwe: 'CWE-502' },
+  'Security Misconfiguration':        { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-16' },
+  'Broken Access Control':            { owasp: 'A01:2021 Broken Access Control', cwe: 'CWE-284' },
 };
 
 export function getVulnMeta(finding) {

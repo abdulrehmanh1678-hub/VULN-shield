@@ -514,3 +514,7 @@ body {
   border-color: var(--border-color-active);
   transform: translateY(-2px);
 }
+
+/* Spinner used by async buttons (e.g. AI settings connection test). */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.8s linear infinite; }

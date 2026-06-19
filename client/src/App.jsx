@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Shield, Terminal, RefreshCw, Clock, GitBranch, Upload,
-  Download, FileJson, FileText, Trash2, ChevronRight, Cpu, Wifi, Sun, Moon
+  Download, FileJson, FileText, Trash2, ChevronRight, Cpu, Wifi, Sun, Moon, Settings, Cloud
 } from 'lucide-react';
 import { useToast } from './components/Toast';
 import CodeEditor from './components/CodeEditor';
@@ -12,6 +12,7 @@ import AgentTerminal from './components/AgentTerminal';
 import HistorySidebar from './components/HistorySidebar';
 import GitHubScanner from './components/GitHubScanner';
 import FileUploader from './components/FileUploader';
+import AISettings from './components/AISettings';
 import { runScan as runScanEngine, scanFiles } from './lib/scanner';
 import { generateReport, checkAiEnabled } from './lib/report';
 import { saveScan } from './lib/history';
@@ -40,6 +41,8 @@ export default function App() {
   const [historyRefresh, setHistoryRefresh] = useState(0);
   const [serverOnline, setServerOnline] = useState(null);
   const [aiEnabled, setAiEnabled] = useState(false);
+  const [aiProvider, setAiProvider] = useState('static');
+  const [showAiSettings, setShowAiSettings] = useState(false);
   const [activeReportTab, setActiveReportTab] = useState('findings');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [scanDuration, setScanDuration] = useState(null);
@@ -51,10 +54,17 @@ export default function App() {
     localStorage.setItem('vs-theme', theme);
   }, [theme]);
 
+  const refreshAiStatus = () => {
+    checkAiEnabled().then(({ enabled, provider }) => {
+      setAiEnabled(enabled);
+      setAiProvider(provider);
+    });
+  };
+
   useEffect(() => {
     // The scan engine runs entirely in the browser, so it is always "online".
     setServerOnline(true);
-    checkAiEnabled().then(setAiEnabled);
+    refreshAiStatus();
   }, []);
 
   // Keyboard shortcut: Ctrl+Enter to scan
@@ -156,9 +166,17 @@ export default function App() {
           <span style={{ fontSize: '11px', color: 'var(--color-info)', display: 'flex', alignItems: 'center', gap: '5px' }}>
             <Wifi size={12} /> Scan Engine Ready
           </span>
-          <span style={{ fontSize: '11px', color: aiEnabled ? '#c084fc' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Cpu size={12} /> {aiEnabled ? 'AI Reports Active' : 'AI: Static Mode'}
-          </span>
+          <button
+            onClick={() => setShowAiSettings(true)}
+            title="Configure AI report engine (local Ollama / cloud / static)"
+            style={{ fontSize: '11px', color: aiEnabled ? '#c084fc' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+          >
+            {aiProvider === 'ollama' ? <Cpu size={12} /> : aiProvider === 'serverless' ? <Cloud size={12} /> : <Cpu size={12} />}
+            {aiProvider === 'ollama' ? 'AI: Local (Ollama)'
+              : aiProvider === 'serverless' ? 'AI: Cloud'
+              : aiEnabled ? 'AI Reports Active' : 'AI: Static Mode'}
+            <Settings size={11} style={{ opacity: 0.6 }} />
+          </button>
           <button onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} className="glass-panel" title="Toggle theme" style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
           </button>
@@ -170,6 +188,11 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      {/* AI ENGINE SETTINGS */}
+      {showAiSettings && (
+        <AISettings onClose={() => setShowAiSettings(false)} onSaved={refreshAiStatus} />
+      )}
 
       {/* HISTORY SIDEBAR */}
       {showHistory && (
