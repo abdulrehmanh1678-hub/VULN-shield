@@ -13,6 +13,9 @@
   --bg-glass-hover: #121212;
   --bg-code-deep: #060606;    /* code / evidence blocks */
   --bg-elev: #111111;
+  --bg-code-safe: #05070a;          /* remediation example block */
+  --bg-code-evidence: #190a0a;      /* evidence (vulnerable line) block */
+  --text-code-evidence: #f87171;    /* evidence text */
 
   /* Borders — solid hairlines, like the reference's #1e1e1e */
   --border-color: #1e1e1e;
@@ -175,7 +178,7 @@ body::before {
   width: 100%;
   height: 400px;
   background: var(--bg-code-deep);
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 14px;
   padding: 20px;
@@ -359,6 +362,9 @@ body::before {
   --bg-glass-hover: #f7f8fa;
   --bg-code-deep: #f3f4f6;
   --bg-elev: #ffffff;
+  --bg-code-safe: #f3f4f6;
+  --bg-code-evidence: #fef2f2;
+  --text-code-evidence: #b91c1c;
   --border-color: #e4e7eb;
   --border-color-strong: #d2d6dc;
   --border-color-active: rgba(0, 124, 240, 0.45);

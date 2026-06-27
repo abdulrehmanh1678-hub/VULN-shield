@@ -135,7 +135,7 @@ export default function CodeEditor({ code, setCode, onScan, isScanning }) {
           position: 'relative',
           borderRadius: '12px',
           border: dragActive ? '2px dashed var(--accent-primary)' : '1px solid var(--border-color)',
-          background: '#080a0f',
+          background: 'var(--bg-code-deep)',
           transition: 'all 0.2s'
         }}
       >

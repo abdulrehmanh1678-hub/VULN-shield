@@ -331,7 +331,7 @@ export default function ResultsViewer({ results }) {
                             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>REMEDIATION EXAMPLE</span>
                             <CopyButton text={finding.safeCode} />
                           </div>
-                          <pre style={{ background: '#05070a', color: 'var(--accent-primary)', padding: '12px', borderRadius: '8px', fontSize: '12px', fontFamily: 'var(--font-mono)', overflowX: 'auto', border: '1px solid var(--border-color)' }}>
+                          <pre style={{ background: 'var(--bg-code-safe)', color: 'var(--accent-primary)', padding: '12px', borderRadius: '8px', fontSize: '12px', fontFamily: 'var(--font-mono)', overflowX: 'auto', border: '1px solid var(--border-color)' }}>
                             {finding.safeCode}
                           </pre>
                         </div>
@@ -343,7 +343,7 @@ export default function ResultsViewer({ results }) {
                         <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>EVIDENCE</span>
                         <CopyButton text={`${finding.line}: ${finding.evidence}`} />
                       </div>
-                      <pre style={{ background: '#190a0a', color: '#f87171', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', fontFamily: 'var(--font-mono)', overflowX: 'auto', border: '1px solid rgba(239,68,68,0.1)' }}>
+                      <pre style={{ background: 'var(--bg-code-evidence)', color: 'var(--text-code-evidence)', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', fontFamily: 'var(--font-mono)', overflowX: 'auto', border: '1px solid rgba(239,68,68,0.1)' }}>
                         {finding.line}: {finding.evidence}
                       </pre>
                     </div>
