@@ -115,9 +115,9 @@ export default function App() {
 
       // Step 4: AI report (serverless) with automatic static fallback.
       setCurrentStep(4);
-      const { report, aiGenerated } = await generateReport(scan);
+      const { report, aiGenerated, verificationIssues } = await generateReport(scan);
 
-      const results = { ...scan, filename, scanId: crypto.randomUUID(), aiReport: report, aiGenerated };
+      const results = { ...scan, filename, scanId: crypto.randomUUID(), aiReport: report, aiGenerated, verificationIssues };
       setScanResults(results);
       saveScan(results);
       setHistoryRefresh(h => h + 1);
@@ -255,8 +255,8 @@ export default function App() {
           {activeTab === 'GitHub Repo' && (
             <GitHubScanner onResults={async (data) => {
               if (!data.success) return;
-              const { report, aiGenerated } = await generateReport(data);
-              const results = { ...data, filename: data.repoUrl, scanId: crypto.randomUUID(), aiReport: report, aiGenerated };
+              const { report, aiGenerated, verificationIssues } = await generateReport(data);
+              const results = { ...data, filename: data.repoUrl, scanId: crypto.randomUUID(), aiReport: report, aiGenerated, verificationIssues };
               setScanResults(results);
               saveScan(results);
               setHistoryRefresh(h => h + 1);
@@ -315,7 +315,7 @@ export default function App() {
               </div>
 
               {activeReportTab === 'findings' && <ResultsViewer results={scanResults} />}
-              {activeReportTab === 'ai_report' && <AIReportViewer report={scanResults.aiReport} aiGenerated={scanResults.aiGenerated} />}
+              {activeReportTab === 'ai_report' && <AIReportViewer report={scanResults.aiReport} aiGenerated={scanResults.aiGenerated} verificationIssues={scanResults.verificationIssues} />}
               {activeReportTab === 'agent_log' && <AgentTerminal logs={scanResults.agentLogs || []} />}
             </>
           )}

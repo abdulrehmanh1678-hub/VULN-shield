@@ -16,11 +16,14 @@ export default function AISettings({ onClose, onSaved }) {
   const [provider, setProvider] = useState(init.provider);
   const [ollamaUrl, setOllamaUrl] = useState(init.ollamaUrl);
   const [ollamaModel, setOllamaModel] = useState(init.ollamaModel);
+  const [openaiKey, setOpenaiKey] = useState(init.openaiKey);
+  const [openaiModel, setOpenaiModel] = useState(init.openaiModel);
   const [testing, setTesting] = useState(false);
   const [models, setModels] = useState(null);
   const [testError, setTestError] = useState('');
 
   const showOllama = provider === 'ollama' || provider === 'auto';
+  const showOpenAI = provider === 'serverless' || provider === 'auto';
 
   const test = async () => {
     setTesting(true); setTestError(''); setModels(null);
@@ -39,7 +42,13 @@ export default function AISettings({ onClose, onSaved }) {
   };
 
   const save = () => {
-    setAiConfig({ provider, ollamaUrl: ollamaUrl.trim(), ollamaModel: ollamaModel.trim() });
+    setAiConfig({
+      provider,
+      ollamaUrl: ollamaUrl.trim(),
+      ollamaModel: ollamaModel.trim(),
+      openaiKey: openaiKey.trim(),
+      openaiModel: openaiModel.trim() || 'gpt-4o-mini',
+    });
     notify('AI settings saved', 'success');
     onSaved?.();
     onClose?.();
@@ -131,6 +140,36 @@ export default function AISettings({ onClose, onSaved }) {
             <p style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '10px', lineHeight: 1.5 }}>
               First time? Install Ollama, then run <code style={codeStyle}>ollama pull {ollamaModel || 'qwen2.5-coder'}</code>.
               If the browser is blocked by CORS, start Ollama with <code style={codeStyle}>OLLAMA_ORIGINS=*</code>.
+            </p>
+          </div>
+        )}
+
+        {/* OpenAI configuration */}
+        {showOpenAI && (
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', marginBottom: '18px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.5px', marginBottom: '10px' }}>
+              CLOUD · OPENAI
+            </div>
+            <label style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>API key</label>
+            <input
+              type="password"
+              value={openaiKey}
+              onChange={e => setOpenaiKey(e.target.value)}
+              placeholder="sk-..."
+              autoComplete="off"
+              style={inputStyle}
+            />
+            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '10px', display: 'block' }}>Model</label>
+            <input
+              value={openaiModel}
+              onChange={e => setOpenaiModel(e.target.value)}
+              placeholder="gpt-4o-mini"
+              style={inputStyle}
+            />
+            <p style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '10px', lineHeight: 1.5 }}>
+              Enter a key to call OpenAI directly — this works in local dev. The key is stored only in this
+              browser (localStorage). Leave it blank to use the deployed Vercel serverless function instead
+              (which keeps the key server-side). Get a key at <code style={codeStyle}>platform.openai.com/api-keys</code>.
             </p>
           </div>
         )}

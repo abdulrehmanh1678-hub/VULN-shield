@@ -3,11 +3,18 @@
  * Tries the Vercel serverless function /api/report (OpenAI-backed) first, and
  * falls back to a fully client-side enriched static report when AI is
  * unavailable (no key configured, offline, or request fails).
+ *
+ * VERIFIED-FINDINGS ARCHITECTURE:
+ * Every AI-generated report is passed through verifyReport() before it is
+ * ever shown to the user. The AI cannot add findings, remove findings, or
+ * change severity/CVSS/file/line — those fields are always forced back to
+ * the static engine's ground truth. This is what makes "AI explains, rules
+ * decide" a verifiable fact rather than just a prompt instruction.
  */
 
 import { apiUrl } from '../api';
 import { getAiConfig } from './aiConfig';
-import { SYSTEM_PROMPT, buildPrompt, parseReportJson } from './aiPrompt';
+import { SYSTEM_PROMPT, buildPrompt, parseReportJson, verifyReport } from './aiPrompt';
 
 const REFERENCES = {
   'SEC-SQLI': ['OWASP A03:2021 – Injection', 'CWE-89: SQL Injection', 'https://owasp.org/www-community/attacks/SQL_Injection'],
@@ -65,7 +72,8 @@ export function buildStaticReport(scanData) {
     explanation: f.description,
     impact: f.danger,
     safeCodeExample: f.safeCode,
-    references: getReferences(f.id)
+    references: getReferences(f.id),
+    verified: true // static engine findings are ground truth by definition
   }));
 
   return {
@@ -97,6 +105,19 @@ function payload(scanData) {
 }
 
 /**
+ * Run verifyReport() against the original findings and log any rejected
+ * hallucinations to the console so you can see/demo the enforcement working.
+ */
+function verifyAndStamp(rawReport, scanData) {
+  const { valid, report, issues } = verifyReport(rawReport, scanData.findings || []);
+  if (issues.length > 0) {
+    // Intentionally visible — this is your "look, it actually caught something" proof.
+    console.warn('[VulnShield] AI report verification flagged issues:', issues);
+  }
+  return { report, verificationPassed: valid, verificationIssues: issues };
+}
+
+/**
  * Enrich via the Vercel serverless function (OpenAI). Returns the report or null.
  */
 async function generateServerlessReport(scanData) {
@@ -108,12 +129,45 @@ async function generateServerlessReport(scanData) {
     });
     if (res.ok) {
       const data = await res.json();
-      if (data?.aiGenerated && data.report) return data.report;
+      if (data?.aiGenerated && data.report) return verifyAndStamp(data.report, scanData);
     }
   } catch {
     // network error / function unavailable
   }
   return null;
+}
+
+/**
+ * Enrich by calling OpenAI directly from the browser using a user-supplied key
+ * (set in AI Settings). This makes the OpenAI provider work in local dev without
+ * the Vercel serverless function. Returns the report or null on any failure.
+ */
+async function generateOpenAIDirect(scanData, cfg = getAiConfig()) {
+  if (!cfg.openaiKey) return null;
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${cfg.openaiKey}`
+      },
+      body: JSON.stringify({
+        model: cfg.openaiModel || 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: buildPrompt(payload(scanData)) }
+        ],
+        response_format: { type: 'json_object' }
+      })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const parsed = parseReportJson(data?.choices?.[0]?.message?.content);
+    return parsed ? verifyAndStamp(parsed, scanData) : null;
+  } catch {
+    // network error / invalid key / CORS
+    return null;
+  }
 }
 
 /**
@@ -138,8 +192,8 @@ async function generateOllamaReport(scanData, cfg = getAiConfig()) {
     });
     if (!res.ok) return null;
     const data = await res.json();
-    const report = parseReportJson(data?.message?.content);
-    return report || null;
+    const parsed = parseReportJson(data?.message?.content);
+    return parsed ? verifyAndStamp(parsed, scanData) : null;
   } catch {
     // Ollama not running / unreachable / CORS blocked
     return null;
@@ -155,20 +209,25 @@ export async function generateReport(scanData, cfg = getAiConfig()) {
   const provider = cfg.provider || 'auto';
 
   if (provider === 'ollama') {
-    const report = await generateOllamaReport(scanData, cfg);
-    if (report) return { report, aiGenerated: true, provider: 'ollama' };
+    const result = await generateOllamaReport(scanData, cfg);
+    if (result) return { ...result, aiGenerated: true, provider: 'ollama' };
   } else if (provider === 'serverless') {
-    const report = await generateServerlessReport(scanData);
-    if (report) return { report, aiGenerated: true, provider: 'serverless' };
+    // Prefer a directly-entered OpenAI key (works locally), else the Vercel function.
+    const direct = await generateOpenAIDirect(scanData, cfg);
+    if (direct) return { ...direct, aiGenerated: true, provider: 'serverless' };
+    const result = await generateServerlessReport(scanData);
+    if (result) return { ...result, aiGenerated: true, provider: 'serverless' };
   } else if (provider === 'auto') {
-    // Prefer the hosted function when a key is configured, else try local Ollama.
+    // Prefer OpenAI (direct key, then hosted function), else fall back to local Ollama.
+    const direct = await generateOpenAIDirect(scanData, cfg);
+    if (direct) return { ...direct, aiGenerated: true, provider: 'serverless' };
     const remote = await generateServerlessReport(scanData);
-    if (remote) return { report: remote, aiGenerated: true, provider: 'serverless' };
+    if (remote) return { ...remote, aiGenerated: true, provider: 'serverless' };
     const local = await generateOllamaReport(scanData, cfg);
-    if (local) return { report: local, aiGenerated: true, provider: 'ollama' };
+    if (local) return { ...local, aiGenerated: true, provider: 'ollama' };
   }
   // provider === 'static' or every attempt failed
-  return { ...buildStaticReport(scanData), provider: 'static' };
+  return { ...buildStaticReport(scanData), provider: 'static', verificationPassed: true, verificationIssues: [] };
 }
 
 /**
@@ -200,8 +259,12 @@ export async function checkAiEnabled(cfg = getAiConfig()) {
 
   if (provider === 'static') return { enabled: false, provider: 'static' };
   if (provider === 'ollama') return { enabled: await probeOllama(), provider: 'ollama' };
-  if (provider === 'serverless') return { enabled: await probeServerless(), provider: 'serverless' };
+  if (provider === 'serverless') {
+    if (cfg.openaiKey) return { enabled: true, provider: 'serverless' };
+    return { enabled: await probeServerless(), provider: 'serverless' };
+  }
   // auto
+  if (cfg.openaiKey) return { enabled: true, provider: 'serverless' };
   if (await probeServerless()) return { enabled: true, provider: 'serverless' };
   if (await probeOllama()) return { enabled: true, provider: 'ollama' };
   return { enabled: false, provider: 'auto' };

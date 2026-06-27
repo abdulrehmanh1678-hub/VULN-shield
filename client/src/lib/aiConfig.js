@@ -19,6 +19,11 @@ const DEFAULTS = {
   provider: import.meta.env.VITE_AI_PROVIDER || 'auto',
   ollamaUrl: (import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434').replace(/\/+$/, ''),
   ollamaModel: import.meta.env.VITE_OLLAMA_MODEL || 'qwen2.5-coder',
+  // OpenAI: a key entered here lets the browser call OpenAI directly (works in
+  // local dev). If left blank, the 'serverless' provider uses the Vercel function
+  // instead, which keeps the key server-side.
+  openaiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
+  openaiModel: import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o-mini',
 };
 
 export function getAiConfig() {

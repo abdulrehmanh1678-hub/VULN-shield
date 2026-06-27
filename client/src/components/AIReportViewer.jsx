@@ -1,7 +1,8 @@
 import React from 'react';
 import { ShieldAlert, ShieldCheck, Zap, CheckCircle2, AlertCircle, Lock, Target } from 'lucide-react';
+import { VerifiedBadge, VerificationBanner } from './VerifiedBadge';
 
-export default function AIReportViewer({ report, aiGenerated }) {
+export default function AIReportViewer({ report, aiGenerated, verificationIssues = [] }) {
   if (!report) {
     return (
       <div className="glass-panel" style={{ padding: '40px', textAlign: 'center' }}>
@@ -17,14 +18,25 @@ export default function AIReportViewer({ report, aiGenerated }) {
   };
   const riskColor = riskColors[report.riskLabel] || 'var(--accent-primary)';
 
+  const reportFindings = Array.isArray(report.findings) ? report.findings : [];
+  const allVerified = reportFindings.length > 0 && reportFindings.every(f => f.verified);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
-      {/* AI Badge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
+      {/* Verification layer caught the AI changing/inventing findings */}
+      <VerificationBanner issues={verificationIssues} />
+
+      {/* AI Badge + verification status */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', flexWrap: 'wrap' }}>
         <span style={{ background: aiGenerated ? 'rgba(192, 132, 252, 0.15)' : 'rgba(99,102,241,0.15)', color: aiGenerated ? '#c084fc' : 'var(--accent-primary)', border: `1px solid ${aiGenerated ? 'rgba(192,132,252,0.3)' : 'rgba(99,102,241,0.3)'}`, padding: '3px 10px', borderRadius: '20px', fontWeight: 600 }}>
           {aiGenerated ? '🤖 AI Enhanced Report' : '⚙️ Static Analysis Report'}
         </span>
+        {allVerified && (
+          <span title={`All ${reportFindings.length} finding(s) cross-checked against the deterministic static engine. The AI explained them; it did not detect or alter them.`}>
+            <VerifiedBadge verified />
+          </span>
+        )}
       </div>
 
       {/* Risk Score Card */}
