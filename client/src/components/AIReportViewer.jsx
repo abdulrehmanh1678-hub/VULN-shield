@@ -29,8 +29,8 @@ export default function AIReportViewer({ report, aiGenerated, verificationIssues
 
       {/* AI Badge + verification status */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', flexWrap: 'wrap' }}>
-        <span style={{ background: aiGenerated ? 'rgba(192, 132, 252, 0.15)' : 'rgba(99,102,241,0.15)', color: aiGenerated ? '#c084fc' : 'var(--accent-primary)', border: `1px solid ${aiGenerated ? 'rgba(192,132,252,0.3)' : 'rgba(99,102,241,0.3)'}`, padding: '3px 10px', borderRadius: '20px', fontWeight: 600 }}>
-          {aiGenerated ? '🤖 AI Enhanced Report' : '⚙️ Static Analysis Report'}
+        <span style={{ background: aiGenerated ? 'rgba(80,227,194,0.15)' : 'rgba(138,138,138,0.12)', color: aiGenerated ? 'var(--accent-primary)' : 'var(--text-secondary)', border: `1px solid ${aiGenerated ? 'rgba(80,227,194,0.3)' : 'var(--border-color)'}`, padding: '3px 10px', borderRadius: '20px', fontWeight: 600 }}>
+          <Zap size={11} style={{ marginRight: '5px', verticalAlign: '-1px' }} />{aiGenerated ? 'AI Enhanced Report' : 'Static Analysis Report'}
         </span>
         {allVerified && (
           <span title={`All ${reportFindings.length} finding(s) cross-checked against the deterministic static engine. The AI explained them; it did not detect or alter them.`}>

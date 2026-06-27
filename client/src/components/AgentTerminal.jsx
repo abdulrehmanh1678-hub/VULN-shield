@@ -44,13 +44,13 @@ export default function AgentTerminal({ logs = [] }) {
         paddingRight: '4px'
       }}>
         {logs.map((log, idx) => {
-          let stepColor = '#818cf8'; // indigo
+          let stepColor = '#50e3c2'; // cyan
           if (log.step.includes('COMPLETE') || log.step.includes('SUCCESS') || log.step.includes('FINISHED')) {
-            stepColor = '#34d399'; // green
+            stepColor = '#28c840'; // green
           } else if (log.step.includes('ERROR') || log.step.includes('FAIL')) {
-            stepColor = '#f87171'; // red
+            stepColor = '#ff5f57'; // red
           } else if (log.step.includes('ROUTING') || log.step.includes('DECISION')) {
-            stepColor = '#c084fc'; // purple
+            stepColor = '#007cf0'; // blue
           }
 
           return (

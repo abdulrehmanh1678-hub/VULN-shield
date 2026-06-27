@@ -22,6 +22,17 @@ const RULE_META = {
   'SEC-CORS-WILD':      { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-942' },
   'SEC-OPEN-REDIRECT':  { owasp: 'A01:2021 Broken Access Control',     cwe: 'CWE-601' },
   'SEC-NOSQL':          { owasp: 'A03:2021 Injection',                 cwe: 'CWE-943' },
+  // Live HTTP header / cookie scan (headerScanner.js) — all A05 Misconfiguration.
+  'SEC-HDR-CSP':         { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-693' },
+  'SEC-HDR-HSTS':        { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-319' },
+  'SEC-HDR-XFO':         { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-1021' },
+  'SEC-HDR-XCTO':        { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-693' },
+  'SEC-HDR-REFERRER':    { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-200' },
+  'SEC-HDR-PERMISSIONS': { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-693' },
+  'SEC-HDR-INFO-LEAK':   { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-200' },
+  'SEC-COOKIE-SECURE':   { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-614' },
+  'SEC-COOKIE-HTTPONLY': { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-1004' },
+  'SEC-COOKIE-SAMESITE': { owasp: 'A05:2021 Security Misconfiguration', cwe: 'CWE-1275' },
 };
 
 const CATEGORY_FALLBACK = {
@@ -38,7 +49,10 @@ const CATEGORY_FALLBACK = {
 };
 
 export function getVulnMeta(finding) {
-  const meta = RULE_META[finding.id] || CATEGORY_FALLBACK[finding.category] || {
+  // Finding ids carry a trailing "-<line>" (e.g. SEC-HDR-CSP-1); strip it to match
+  // the rule key. Try the exact id first, then the rule prefix, then the category.
+  const ruleKey = String(finding.id || '').replace(/-\d+$/, '');
+  const meta = RULE_META[finding.id] || RULE_META[ruleKey] || CATEGORY_FALLBACK[finding.category] || {
     owasp: 'OWASP Top 10', cwe: 'CWE',
   };
   const cweNum = (meta.cwe.match(/\d+/) || [])[0];

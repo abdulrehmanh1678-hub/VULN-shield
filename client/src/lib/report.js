@@ -41,14 +41,14 @@ function getPrioritizedActions(findings) {
   const hasXSS = findings.some(f => f.id.startsWith('SEC-XSS'));
   const hasCMD = findings.some(f => f.id.startsWith('SEC-CMD'));
 
-  if (hasSecret) actions.push('🚨 Immediately rotate all exposed API keys, passwords, and tokens. Move them to environment variables.');
-  if (hasCMD) actions.push('🚨 Eliminate all dynamic shell command execution from user-controlled inputs to prevent Remote Code Execution.');
-  if (hasSQLi) actions.push('🔴 Replace all raw SQL string concatenation with parameterized queries or a trusted ORM.');
-  if (hasXSS) actions.push('🔴 Sanitize all user-generated HTML output using DOMPurify before rendering.');
-  if (hasCritical || hasHigh) actions.push('🔴 Conduct an immediate security code review of all high and critical findings before any production deployment.');
-  actions.push('🟡 Run a comprehensive dependency audit (npm audit / pip-audit) to identify known CVEs in third-party packages.');
-  actions.push('🟡 Add security headers middleware (helmet.js) to all Express responses to prevent common browser attacks.');
-  actions.push('🟢 Integrate this security scanner into your CI/CD pipeline to catch issues on every commit.');
+  if (hasSecret) actions.push('Immediately rotate all exposed API keys, passwords, and tokens. Move them to environment variables.');
+  if (hasCMD) actions.push('Eliminate all dynamic shell command execution from user-controlled inputs to prevent Remote Code Execution.');
+  if (hasSQLi) actions.push('Replace all raw SQL string concatenation with parameterized queries or a trusted ORM.');
+  if (hasXSS) actions.push('Sanitize all user-generated HTML output using DOMPurify before rendering.');
+  if (hasCritical || hasHigh) actions.push('Conduct an immediate security code review of all high and critical findings before any production deployment.');
+  actions.push('Run a comprehensive dependency audit (npm audit / pip-audit) to identify known CVEs in third-party packages.');
+  actions.push('Add security headers middleware (helmet.js) to all Express responses to prevent common browser attacks.');
+  actions.push('Integrate this security scanner into your CI/CD pipeline to catch issues on every commit.');
 
   return actions.slice(0, 6);
 }

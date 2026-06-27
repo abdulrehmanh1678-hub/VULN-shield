@@ -152,7 +152,7 @@ export default function CodeEditor({ code, setCode, onScan, isScanning }) {
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(99, 102, 241, 0.1)',
+            background: 'rgba(80, 227, 194, 0.08)',
             backdropFilter: 'blur(2px)',
             display: 'flex',
             flexDirection: 'column',

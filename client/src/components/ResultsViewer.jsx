@@ -7,10 +7,10 @@ import { getVulnMeta, sortFindings, buildMarkdownReport, SEVERITY_ORDER } from '
 import { useToast } from './Toast';
 
 const SEV_CONFIG = {
-  Critical: { color: 'var(--color-critical)', activeBg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.5)' },
-  High:     { color: 'var(--color-high)',     activeBg: 'rgba(249,115,22,0.15)', border: 'rgba(249,115,22,0.5)' },
-  Medium:   { color: 'var(--color-medium)',   activeBg: 'rgba(234,179,8,0.15)',  border: 'rgba(234,179,8,0.5)' },
-  Low:      { color: 'var(--color-low)',      activeBg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.5)' },
+  Critical: { color: 'var(--color-critical)', activeBg: 'rgba(255,95,87,0.15)',  border: 'rgba(255,95,87,0.5)' },
+  High:     { color: 'var(--color-high)',     activeBg: 'rgba(240,136,62,0.15)', border: 'rgba(240,136,62,0.5)' },
+  Medium:   { color: 'var(--color-medium)',   activeBg: 'rgba(227,179,65,0.15)', border: 'rgba(227,179,65,0.5)' },
+  Low:      { color: 'var(--color-low)',      activeBg: 'rgba(88,166,255,0.15)', border: 'rgba(88,166,255,0.5)' },
 };
 
 function CopyButton({ text }) {
@@ -331,7 +331,7 @@ export default function ResultsViewer({ results }) {
                             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>REMEDIATION EXAMPLE</span>
                             <CopyButton text={finding.safeCode} />
                           </div>
-                          <pre style={{ background: '#05070a', color: '#818cf8', padding: '12px', borderRadius: '8px', fontSize: '12px', fontFamily: 'var(--font-mono)', overflowX: 'auto', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <pre style={{ background: '#05070a', color: 'var(--accent-primary)', padding: '12px', borderRadius: '8px', fontSize: '12px', fontFamily: 'var(--font-mono)', overflowX: 'auto', border: '1px solid var(--border-color)' }}>
                             {finding.safeCode}
                           </pre>
                         </div>

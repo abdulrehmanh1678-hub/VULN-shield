@@ -91,9 +91,9 @@ export default function HistorySidebar({ onSelect, onClose, refresh }) {
                   {scan.total_vulnerabilities} vuln · {scan.language}
                 </span>
                 {scan.ai_generated ? (
-                  <span style={{ fontSize: '9px', color: '#c084fc' }}>🤖 AI</span>
+                  <span style={{ fontSize: '9px', fontWeight: 600, color: 'var(--accent-primary)', letterSpacing: '0.3px' }}>AI</span>
                 ) : (
-                  <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>⚙ Static</span>
+                  <span style={{ fontSize: '9px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.3px' }}>STATIC</span>
                 )}
               </div>
             </div>

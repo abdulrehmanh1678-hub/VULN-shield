@@ -99,12 +99,12 @@ export default function GitHubScanner({ onResults, isScanning, setIsScanning }) 
       {/* Progress */}
       {isScanning && (
         <div style={{ background: '#04060a', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '12px', maxHeight: '150px', overflowY: 'auto', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#34d399' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#c084fc' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#50e3c2' }}>
             <Loader2 size={12} className="animate-spin" /> Cloning and scanning repository...
           </div>
           {progress.map((log, i) => (
             <div key={i} style={{ color: '#e2e8f0', lineHeight: 1.6 }}>
-              <span style={{ color: '#6366f1' }}>[{log.step}]</span> {log.message}
+              <span style={{ color: '#007cf0' }}>[{log.step}]</span> {log.message}
             </div>
           ))}
         </div>

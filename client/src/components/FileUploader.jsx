@@ -46,7 +46,7 @@ export default function FileUploader({ files, setFiles, onScan, isScanning }) {
           padding: '40px 20px',
           textAlign: 'center',
           cursor: 'pointer',
-          background: dragActive ? 'rgba(99,102,241,0.05)' : 'var(--bg-primary)',
+          background: dragActive ? 'rgba(80,227,194,0.06)' : 'var(--bg-primary)',
           transition: 'all 0.2s',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px'
         }}

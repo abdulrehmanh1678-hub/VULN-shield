@@ -88,7 +88,7 @@ export default function AISettings({ onClose, onSaved }) {
                 style={{
                   display: 'flex', alignItems: 'flex-start', gap: '10px', textAlign: 'left', padding: '12px',
                   borderRadius: '10px', cursor: 'pointer',
-                  background: active ? 'rgba(99,102,241,0.12)' : 'var(--bg-primary)',
+                  background: active ? 'rgba(80,227,194,0.1)' : 'var(--bg-primary)',
                   border: `1px solid ${active ? 'var(--accent-primary)' : 'var(--border-color)'}`,
                 }}
               >
