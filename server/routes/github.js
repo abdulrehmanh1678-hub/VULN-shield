@@ -9,10 +9,15 @@ const scanDb = require('../database');
  * POST /api/github
  * Clone and scan a public GitHub repository
  */
+// Strictly match https://github.com/<owner>/<repo> with an optional .git/trailing
+// slash. Anchoring + a whitelist of URL chars prevents argument injection into
+// `git clone` and blocks any host other than github.com (SSRF defence-in-depth).
+const GITHUB_URL_RE = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\.git)?\/?$/;
+
 router.post('/', async (req, res) => {
   const { repoUrl } = req.body;
 
-  if (!repoUrl || !repoUrl.startsWith('https://github.com/')) {
+  if (typeof repoUrl !== 'string' || !GITHUB_URL_RE.test(repoUrl)) {
     return res.status(400).json({
       success: false,
       error: 'Please provide a valid public GitHub HTTPS URL (e.g., https://github.com/owner/repo)'
